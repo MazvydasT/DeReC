@@ -13,15 +13,48 @@ namespace DeckingReportCompiler
         public delegate void Error(string message);
         public event Error OnError;
 
-        public delegate void Progress(float value);
-        public event Progress OnProgress;
+        public delegate void CompileProgress(float value);
+        public event CompileProgress OnCompileProgress;
 
-        public Dictionary<string, PartPair> Compile(string inputPath, double stepSize)
+        public void SaveWorstCaseClearanceFile(ClearanceFileMetaData clearanceFileMetaData, string worstCaseClearanceFilePath)
         {
+            using (var worstCaseClearanceFileStream = new StreamWriter(worstCaseClearanceFilePath, false, Encoding.Unicode))
+            {
+                var partPairsCount = clearanceFileMetaData.PartPairs.Count;
+
+                worstCaseClearanceFileStream.WriteLine(clearanceFileMetaData.Version);
+                worstCaseClearanceFileStream.WriteLine(partPairsCount);
+                worstCaseClearanceFileStream.WriteLine(clearanceFileMetaData.MagicNumber);
+                worstCaseClearanceFileStream.WriteLine(partPairsCount);
+                worstCaseClearanceFileStream.WriteLine(clearanceFileMetaData.Header);
+
+                foreach (var partPair in clearanceFileMetaData.PartPairs)
+                {
+                    var pair = partPair.Value;
+
+                    var dataRow = clearanceFileMetaData.DataRows[pair.WorstCaseClearance.Number];
+                    var reNumberedDataRow = Regex.Replace(dataRow, @"(?<=^\d+"")\d+(?="".*)", pair.Number.ToString());
+                    worstCaseClearanceFileStream.WriteLine(reNumberedDataRow);
+                }
+
+                worstCaseClearanceFileStream.WriteLine("###EndItem");
+                worstCaseClearanceFileStream.WriteLine("0");
+                worstCaseClearanceFileStream.WriteLine("\"Action\",\"Value\"");
+            }
+        }
+
+        public ClearanceFileMetaData Compile(string inputPath, double stepSize)
+        {
+            ClearanceFileMetaData clearanceFileMetaData;
+
             using (var reader = new StreamReader(inputPath))
             {
-                // skip 4 lines
-                for (var i = 0; i < 4; ++i) reader.ReadLine();
+                var version = reader.ReadLine();
+                var numberOfDataRows = int.Parse(reader.ReadLine());
+                var magicNumber = reader.ReadLine();
+
+                // skip 1 line
+                reader.ReadLine();
 
                 if (reader.EndOfStream && OnError != null)
                 {
@@ -30,7 +63,11 @@ namespace DeckingReportCompiler
                     return null;
                 }
 
-                var columnNames = rowToValues(reader.ReadLine());
+                var header = reader.ReadLine();
+
+                clearanceFileMetaData = new ClearanceFileMetaData(version, magicNumber, header, numberOfDataRows);
+
+                var columnNames = rowToValues(header);
 
                 var numberColumnIndex = Array.IndexOf(columnNames, "Number");
                 if (numberColumnIndex == -1 && OnError != null)
@@ -100,7 +137,8 @@ namespace DeckingReportCompiler
 
                 var rowCounter = 5;
 
-                var partPairs = new Dictionary<string, PartPair>();
+                var partPairs = clearanceFileMetaData.PartPairs;
+                var partPairCounter = 1;
 
                 var numericCleanupRegex = new Regex(@"[^\d\.-]", RegexOptions.Compiled);
 
@@ -121,6 +159,9 @@ namespace DeckingReportCompiler
                     }
 
                     var number = int.Parse(dataValues[numberColumnIndex]);
+
+                    clearanceFileMetaData.DataRows.Add(number, dataRow);
+
                     var result = double.Parse(numericCleanupRegex.Replace(dataValues[resultColumnIndex], ""));
 
                     var frame = 0;
@@ -135,8 +176,7 @@ namespace DeckingReportCompiler
 
                     if (!partPairs.ContainsKey(partPairId))
                     {
-                        var partPair = new PartPair(part1Hierarchy, xform1, part2Hierarchy, xform2);
-                        var test = partPair.Part1DS;
+                        var partPair = new PartPair(part1Hierarchy, xform1, part2Hierarchy, xform2, partPairCounter++);
 
                         partPairs.Add(partPairId, partPair);
                     }
@@ -146,11 +186,11 @@ namespace DeckingReportCompiler
                     if (!partPairClearances.ContainsKey(frame))
                         partPairClearances.Add(frame, new Clearance(number, result, frame * stepSize));
 
-                    if (OnProgress != null)
-                        OnProgress((float)reader.BaseStream.Position / (float)reader.BaseStream.Length);
+                    if (OnCompileProgress != null)
+                        OnCompileProgress((float)reader.BaseStream.Position / (float)reader.BaseStream.Length);
                 }
 
-                return partPairs;
+                return clearanceFileMetaData;
             }
         }
 

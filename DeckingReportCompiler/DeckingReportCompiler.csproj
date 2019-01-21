@@ -95,6 +95,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Clearance.cs" />
+    <Compile Include="ClearanceFileMetaData.cs" />
     <Compile Include="DeReC.cs" />
     <Compile Include="ExcelManager.cs" />
     <Compile Include="MainWindow.xaml.cs">
@@ -127,7 +128,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-    <None Include="Resources\Template.xlsx" />
+    <None Include="Resources\Template.xlsm" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

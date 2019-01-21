@@ -38,6 +38,7 @@ namespace DeckingReportCompiler
         {
             var openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Clearance Results (*.txt)|*.txt";
+            openFileDialog.Title = "Open Clearance Results";
 
             if (openFileDialog.ShowDialog() == true)
                 clearanceFilePath.Text = openFileDialog.FileName;
@@ -47,15 +48,32 @@ namespace DeckingReportCompiler
         {
             var pathToClearanceFile = clearanceFilePath.Text;
             string pathToResultsFile = null;
+            string pathToWorstCaseClearanceFile = null;
 
-            var saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Excel File (*.xlsx)|*.xlsx";
-            saveFileDialog.OverwritePrompt = true;
-            saveFileDialog.InitialDirectory = Path.GetDirectoryName(pathToClearanceFile);
-            saveFileDialog.FileName = Path.GetFileNameWithoutExtension(pathToClearanceFile);
+            var directoryName = Path.GetDirectoryName(pathToClearanceFile);
+            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(pathToClearanceFile);
 
-            if (saveFileDialog.ShowDialog() == true)
-                pathToResultsFile = saveFileDialog.FileName;
+            var saveExcelFileDialog = new SaveFileDialog();
+            saveExcelFileDialog.Filter = "Excel Macro-Enabled Workbook (*.xlsm)|*.xlsm";
+            saveExcelFileDialog.OverwritePrompt = true;
+            saveExcelFileDialog.InitialDirectory = directoryName;
+            saveExcelFileDialog.FileName = fileNameWithoutExtension;
+            saveExcelFileDialog.Title = "Save Excel report";
+
+            if (saveExcelFileDialog.ShowDialog() == true)
+                pathToResultsFile = saveExcelFileDialog.FileName;
+            else
+                return;
+
+            var saveWorstCaseClearanceFileDialog = new SaveFileDialog();
+            saveWorstCaseClearanceFileDialog.Filter = "Clearance Results (*.txt)|*.txt";
+            saveWorstCaseClearanceFileDialog.OverwritePrompt = true;
+            saveWorstCaseClearanceFileDialog.InitialDirectory = directoryName;
+            saveWorstCaseClearanceFileDialog.FileName = "WORST CASE " + fileNameWithoutExtension;
+            saveWorstCaseClearanceFileDialog.Title = "Save worst case Clearance Results";
+
+            if (saveWorstCaseClearanceFileDialog.ShowDialog() == true)
+                pathToWorstCaseClearanceFile = saveWorstCaseClearanceFileDialog.FileName;
             else
                 return;
 
@@ -63,7 +81,7 @@ namespace DeckingReportCompiler
 
             var deReC = new DeReC();
             deReC.OnError += message => Console.Error.WriteLine(message);
-            deReC.OnProgress += value => progressBar.Dispatcher.Invoke(() => progressBar.Value = value / 2);
+            deReC.OnCompileProgress += value => progressBar.Dispatcher.Invoke(() => progressBar.Value = value / 2);
 
             var excelManager = new ExcelManager();
             excelManager.OnProgress += value => progressBar.Dispatcher.Invoke(() => progressBar.Value = 0.5 + value / 2);
@@ -73,14 +91,27 @@ namespace DeckingReportCompiler
             Task.Run(() => deReC.Compile(pathToClearanceFile, stepSize))
                 .ContinueWith(task =>
                 {
-                    var partPairs = task.Result;
+                    var clearanceFileMetaData = task.Result;
 
-                    if (partPairs == null) return;
-
-                    using (var fileStream = new FileStream(pathToResultsFile, FileMode.OpenOrCreate, FileAccess.Write))
+                    Task.WaitAll(new Task[]
                     {
-                        excelManager.Write(partPairs, fileStream);
-                    }
+                        Task.Factory.StartNew(() =>
+                        {
+                            var partPairs = clearanceFileMetaData.PartPairs;
+
+                            if (partPairs == null) return;
+
+                            using (var excelFileStream = new FileStream(pathToResultsFile, FileMode.Create, FileAccess.Write))
+                            {
+                                excelManager.Write(partPairs, excelFileStream);
+                            }
+                        }),
+
+                        Task.Factory.StartNew(() =>
+                        {
+                            deReC.SaveWorstCaseClearanceFile(clearanceFileMetaData, pathToWorstCaseClearanceFile);
+                        })
+                    });
                 })
                 .ContinueWith(task => completeOverlay.Dispatcher.Invoke(() => completeOverlay.Visibility = System.Windows.Visibility.Visible));
         }

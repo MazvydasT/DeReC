@@ -9,6 +9,8 @@ namespace DeckingReportCompiler
 {
     public class PartPair
     {
+        public int Number { get; private set; }
+
         public string[] Part1Hierarchy { get; private set; }
         public string[] Part2Hierarchy { get; private set; }
 
@@ -152,11 +154,8 @@ namespace DeckingReportCompiler
                 Clearance worstCaseClearance = null;
 
                 for (var i = keys.Count - 1; i > -1; --i)
-                //for (var i = keys.Count - 2; i > -1; --i)
                 {
                     var key = keys[i];
-
-                    //if (key == 0) break;
 
                     var clearance = Clearances[key];
 
@@ -196,8 +195,10 @@ namespace DeckingReportCompiler
             }
         }
 
-        public PartPair(string[] part1Hierarchy, string part1Transforms, string[] part2Hierarchy, string part2Transforms)
+        public PartPair(string[] part1Hierarchy, string part1Transforms, string[] part2Hierarchy, string part2Transforms, int number)
         {
+            Number = number;
+
             Clearances = new Dictionary<int, Clearance>();
             
             Part1Hierarchy = part1Hierarchy;
