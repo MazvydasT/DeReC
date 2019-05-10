@@ -49,7 +49,7 @@ namespace DeckingReportCompiler
                 summarySheet.InsertRow(summaryTableRangeFirstDataRow, partPairsCount - 1, summaryTableRangeLastRow);
 
                 //var resultsColumnsAddress = String.Format("J{0}:J{1},L{0}:M{1}", summaryTableRangeFirstDataRow, summaryTableRangeLastRow);
-                var resultsColumnsAddress = String.Format("L{0}:N{1}", summaryTableRangeFirstDataRow, summaryTableRangeLastRow);
+                var resultsColumnsAddress = String.Format("J{0}:K{1}", summaryTableRangeFirstDataRow, summaryTableRangeLastRow);
 
                 var conditionalFormatting = summarySheet.ConditionalFormatting;
                 conditionalFormatting[0].Address = new ExcelAddress(resultsColumnsAddress);
@@ -73,22 +73,22 @@ namespace DeckingReportCompiler
 
                     var currentRowNumber = summaryTableRangeHeaderRow + summaryTableRowNumber++;
 
-                    var summaryTableRow = summarySheet.Cells[String.Format("A{0}:M{0}", currentRowNumber)];
+                    var summaryTableRow = summarySheet.Cells[String.Format("A{0}:N{0}", currentRowNumber)];
                     summaryTableRow.LoadFromArrays(new List<object[]>
                     {
                         new object[]
                         {
                             //partPairId,
-                            //partPair.WorstCaseClearance.Number,
-                             partPair.Number,
+                            partPair.WorstCaseClearance.Number,
+                            //partPair.Number,
                             
-                            null,
+                            //null,
                             
                             partPair.Part1MfgArea,
                             partPair.Part1CPSC,
                             partPair.Part1Hierarchy[partPair.Part1Hierarchy.Length - 1],
                             
-                            null,
+                            //null,
                             
                             partPair.Part2MfgArea,
                             partPair.Part2CPSC,
@@ -109,22 +109,22 @@ namespace DeckingReportCompiler
                     });
 
                     if (partPair.Part1Process != null)
-                        summarySheet.Cells[currentRowNumber, 3].AddComment(partPair.Part1Process, "_").AutoFit = true;
+                        summarySheet.Cells[currentRowNumber, 2].AddComment(partPair.Part1Process, "_").AutoFit = true;
 
                     if (partPair.Part1DS != null)
-                        summarySheet.Cells[currentRowNumber, 4].AddComment(partPair.Part1DS, "_").AutoFit = true;
+                        summarySheet.Cells[currentRowNumber, 3].AddComment(partPair.Part1DS, "_").AutoFit = true;
 
                     if (partPair.Part1Ancestors != null)
-                        summarySheet.Cells[currentRowNumber, 5].AddComment(partPair.Part1Ancestors, "_").AutoFit = true;
+                        summarySheet.Cells[currentRowNumber, 4].AddComment(partPair.Part1Ancestors, "_").AutoFit = true;
 
                     if (partPair.Part2Process != null)
-                        summarySheet.Cells[currentRowNumber, 7].AddComment(partPair.Part2Process, "_").AutoFit = true;
+                        summarySheet.Cells[currentRowNumber, 5].AddComment(partPair.Part2Process, "_").AutoFit = true;
 
                     if (partPair.Part2DS != null)
-                        summarySheet.Cells[currentRowNumber, 8].AddComment(partPair.Part2DS, "_").AutoFit = true;
+                        summarySheet.Cells[currentRowNumber, 6].AddComment(partPair.Part2DS, "_").AutoFit = true;
 
                     if (partPair.Part2Ancestors != null)
-                        summarySheet.Cells[currentRowNumber, 9].AddComment(partPair.Part2Ancestors, "_").AutoFit = true;
+                        summarySheet.Cells[currentRowNumber, 7].AddComment(partPair.Part2Ancestors, "_").AutoFit = true;
 
 
                     //###########
@@ -173,7 +173,7 @@ namespace DeckingReportCompiler
                         + /*result value*/ Math.Max(Math.Abs(minResult), Math.Abs(maxResult)).ToString("0.00").Length
                         + /* mm*/ 3;
 
-                    var sparklineCell = summarySheet.Cells[currentRowNumber, 10];
+                    var sparklineCell = summarySheet.Cells[currentRowNumber, 8];
                     var sparklineDataRange = spaklinesDataSheet.Cells[String.Format("A{0}:A{1}", sparklinesDataRow, sparklinesDataRow + clearancesCount - 1)];
 
                     summarySheet.SparklineGroups.Add(eSparklineType.Line, sparklineCell, sparklineDataRange);
@@ -203,10 +203,10 @@ namespace DeckingReportCompiler
                 // END Sparklines
                 //###############
 
-                if (!mfgArea1Present) summarySheet.Column(3).Hidden = true;
-                if (!mfgArea2Present) summarySheet.Column(7).Hidden = true;
-                if (!cpsc1Present) summarySheet.Column(4).Hidden = true;
-                if (!cpsc2Present) summarySheet.Column(8).Hidden = true;
+                if (!mfgArea1Present) summarySheet.Column(2).Hidden = true;
+                if (!mfgArea2Present) summarySheet.Column(5).Hidden = true;
+                if (!cpsc1Present) summarySheet.Column(3).Hidden = true;
+                if (!cpsc2Present) summarySheet.Column(6).Hidden = true;
 
                 templatePackage.Compression = CompressionLevel.BestCompression;
 

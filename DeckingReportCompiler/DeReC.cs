@@ -33,7 +33,8 @@ namespace DeckingReportCompiler
                     var pair = partPair.Value;
 
                     var dataRow = clearanceFileMetaData.DataRows[pair.WorstCaseClearance.Number];
-                    var reNumberedDataRow = Regex.Replace(dataRow, @"(?<=^\d+"")\d+(?="".*)", pair.Number.ToString());
+                    //var reNumberedDataRow = Regex.Replace(dataRow, @"(?<=^\d+"")\d+(?="".*)", pair.Number.ToString());
+                    var reNumberedDataRow = dataRow;
                     worstCaseClearanceFileStream.WriteLine(reNumberedDataRow);
                 }
 

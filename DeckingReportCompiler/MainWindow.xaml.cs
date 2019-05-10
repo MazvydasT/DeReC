@@ -54,7 +54,8 @@ namespace DeckingReportCompiler
             var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(pathToClearanceFile);
 
             var saveExcelFileDialog = new SaveFileDialog();
-            saveExcelFileDialog.Filter = "Excel Macro-Enabled Workbook (*.xlsm)|*.xlsm";
+            //saveExcelFileDialog.Filter = "Excel Macro-Enabled Workbook (*.xlsm)|*.xlsm";
+            saveExcelFileDialog.Filter = "Excel Workbook (*.xlsx)|*.xlsx";
             saveExcelFileDialog.OverwritePrompt = true;
             saveExcelFileDialog.InitialDirectory = directoryName;
             saveExcelFileDialog.FileName = fileNameWithoutExtension;

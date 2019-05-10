@@ -129,6 +129,7 @@
     </None>
     <AppDesigner Include="Properties\" />
     <None Include="Resources\Template.xlsm" />
+    <None Include="Resources\Template.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
