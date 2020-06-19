@@ -1,12 +1,9 @@
-﻿using System;
+﻿using OfficeOpenXml;
+using OfficeOpenXml.Sparkline;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using OfficeOpenXml;
-using OfficeOpenXml.Sparkline;
 
 namespace DeckingReportCompiler
 {
@@ -68,8 +65,7 @@ namespace DeckingReportCompiler
                     if (partPair.Part1MfgArea != null) mfgArea1Present = true;
                     if (partPair.Part2MfgArea != null) mfgArea2Present = true;
 
-                    if (OnProgress != null)
-                        OnProgress((float)summaryTableRowNumber / (float)partPairsCount);
+                    OnProgress?.Invoke((float)summaryTableRowNumber / (float)partPairsCount);
 
                     var currentRowNumber = summaryTableRangeHeaderRow + summaryTableRowNumber++;
 
@@ -168,7 +164,7 @@ namespace DeckingReportCompiler
                                 minDistanceToMarriedPadding = paddingLength;
                         }
                     }
-                    
+
                     var resultPadding = /*negative sign*/ (minResult < 0 ? 1 : 0)
                         + /*result value*/ Math.Max(Math.Abs(minResult), Math.Abs(maxResult)).ToString("0.00").Length
                         + /* mm*/ 3;
@@ -177,14 +173,14 @@ namespace DeckingReportCompiler
                     var sparklineDataRange = spaklinesDataSheet.Cells[String.Format("A{0}:A{1}", sparklinesDataRow, sparklinesDataRow + clearancesCount - 1)];
 
                     summarySheet.SparklineGroups.Add(eSparklineType.Line, sparklineCell, sparklineDataRange);
-                    
+
                     sparklineDataRange.LoadFromArrays(sortedClearances.Select(x => new object[] { x.Value.Result }).ToList());
 
                     var sparklineComment = sparklineCell.AddComment(string.Join("\r\n", clearanceValuesToDistanceRange.Select(x =>
                     {
                         var paddedValue = (Math.Abs(x.Item1).ToString("0.00") + " mm").PadLeft(resultPadding, ' ');
 
-                        if(x.Item1 < 0)
+                        if (x.Item1 < 0)
                             paddedValue = "-" + paddedValue.Remove(0, 1);
 
                         paddedValue += " @ "

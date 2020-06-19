@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace DeckingReportCompiler
 {
@@ -11,7 +7,7 @@ namespace DeckingReportCompiler
         public string Version { get; private set; }
         public string MagicNumber { get; private set; }
         public string Header { get; private set; }
-        
+
         public Dictionary<int, string> DataRows { get; private set; }
         public Dictionary<string, PartPair> PartPairs { get; private set; }
 

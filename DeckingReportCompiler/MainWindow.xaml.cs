@@ -1,24 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using Microsoft.Win32;
+using System;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-
-using Excel = Microsoft.Office.Interop.Excel;
-
-using Microsoft.Win32;
 
 namespace DeckingReportCompiler
 {
@@ -31,20 +17,22 @@ namespace DeckingReportCompiler
         {
             InitializeComponent();
 
-            clearanceFilePath_TextChanged(null, null);
+            ClearanceFilePath_TextChanged(null, null);
         }
 
-        private void browseClearanceFile_Click(object sender, RoutedEventArgs e)
+        private void BrowseClearanceFile_Click(object sender, RoutedEventArgs e)
         {
-            var openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Clearance Results (*.txt)|*.txt";
-            openFileDialog.Title = "Open Clearance Results";
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Clearance Results (*.txt)|*.txt",
+                Title = "Open Clearance Results"
+            };
 
             if (openFileDialog.ShowDialog() == true)
                 clearanceFilePath.Text = openFileDialog.FileName;
         }
 
-        private void compileButton_Click(object sender, RoutedEventArgs e)
+        private void CompileButton_Click(object sender, RoutedEventArgs e)
         {
             var pathToClearanceFile = clearanceFilePath.Text;
             string pathToResultsFile = null;
@@ -53,25 +41,29 @@ namespace DeckingReportCompiler
             var directoryName = Path.GetDirectoryName(pathToClearanceFile);
             var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(pathToClearanceFile);
 
-            var saveExcelFileDialog = new SaveFileDialog();
-            //saveExcelFileDialog.Filter = "Excel Macro-Enabled Workbook (*.xlsm)|*.xlsm";
-            saveExcelFileDialog.Filter = "Excel Workbook (*.xlsx)|*.xlsx";
-            saveExcelFileDialog.OverwritePrompt = true;
-            saveExcelFileDialog.InitialDirectory = directoryName;
-            saveExcelFileDialog.FileName = fileNameWithoutExtension;
-            saveExcelFileDialog.Title = "Save Excel report";
+            var saveExcelFileDialog = new SaveFileDialog
+            {
+                //Filter = "Excel Macro-Enabled Workbook (*.xlsm)|*.xlsm";
+                Filter = "Excel Workbook (*.xlsx)|*.xlsx",
+                OverwritePrompt = true,
+                InitialDirectory = directoryName,
+                FileName = fileNameWithoutExtension,
+                Title = "Save Excel report"
+            };
 
             if (saveExcelFileDialog.ShowDialog() == true)
                 pathToResultsFile = saveExcelFileDialog.FileName;
             else
                 return;
 
-            var saveWorstCaseClearanceFileDialog = new SaveFileDialog();
-            saveWorstCaseClearanceFileDialog.Filter = "Clearance Results (*.txt)|*.txt";
-            saveWorstCaseClearanceFileDialog.OverwritePrompt = true;
-            saveWorstCaseClearanceFileDialog.InitialDirectory = directoryName;
-            saveWorstCaseClearanceFileDialog.FileName = "WORST CASE " + fileNameWithoutExtension;
-            saveWorstCaseClearanceFileDialog.Title = "Save worst case Clearance Results";
+            var saveWorstCaseClearanceFileDialog = new SaveFileDialog
+            {
+                Filter = "Clearance Results (*.txt)|*.txt",
+                OverwritePrompt = true,
+                InitialDirectory = directoryName,
+                FileName = "WORST CASE " + fileNameWithoutExtension,
+                Title = "Save worst case Clearance Results"
+            };
 
             if (saveWorstCaseClearanceFileDialog.ShowDialog() == true)
                 pathToWorstCaseClearanceFile = saveWorstCaseClearanceFileDialog.FileName;
@@ -117,13 +109,13 @@ namespace DeckingReportCompiler
                 .ContinueWith(task => completeOverlay.Dispatcher.Invoke(() => completeOverlay.Visibility = System.Windows.Visibility.Visible));
         }
 
-        private void doneButton_Click(object sender, RoutedEventArgs e)
+        private void DoneButton_Click(object sender, RoutedEventArgs e)
         {
             progressOverlay.Visibility = System.Windows.Visibility.Hidden;
             completeOverlay.Visibility = System.Windows.Visibility.Hidden;
         }
 
-        private void clearanceFilePath_TextChanged(object sender, TextChangedEventArgs e)
+        private void ClearanceFilePath_TextChanged(object sender, TextChangedEventArgs e)
         {
             var pathToClearanceFile = clearanceFilePath.Text;
 

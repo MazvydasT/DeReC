@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace DeckingReportCompiler
 {
@@ -68,7 +66,7 @@ namespace DeckingReportCompiler
 
                 clearanceFileMetaData = new ClearanceFileMetaData(version, magicNumber, header, numberOfDataRows);
 
-                var columnNames = rowToValues(header);
+                var columnNames = RowToValues(header);
 
                 var numberColumnIndex = Array.IndexOf(columnNames, "Number");
                 if (numberColumnIndex == -1 && OnError != null)
@@ -150,7 +148,7 @@ namespace DeckingReportCompiler
 
                     if (dataRow == "###EndItem") break;
 
-                    var dataValues = rowToValues(dataRow);
+                    var dataValues = RowToValues(dataRow);
 
                     if (dataValues.Length <= maxIndex && OnError != null)
                     {
@@ -165,11 +163,10 @@ namespace DeckingReportCompiler
 
                     var result = double.Parse(numericCleanupRegex.Replace(dataValues[resultColumnIndex], ""));
 
-                    var frame = 0;
-                    int.TryParse(dataValues[frameColumnIndex], out frame);
+                    int.TryParse(dataValues[frameColumnIndex], out int frame);
 
-                    var part1Hierarchy = cadIdToPartHierarchy(dataValues[cadId1ColumnIndex]);
-                    var part2Hierarchy = cadIdToPartHierarchy(dataValues[cadId2ColumnIndex]);
+                    var part1Hierarchy = CadIdToPartHierarchy(dataValues[cadId1ColumnIndex]);
+                    var part2Hierarchy = CadIdToPartHierarchy(dataValues[cadId2ColumnIndex]);
                     var xform1 = dataValues[xform1ColumnIndex];
                     var xform2 = dataValues[xform2ColumnIndex];
 
@@ -187,23 +184,22 @@ namespace DeckingReportCompiler
                     if (!partPairClearances.ContainsKey(frame))
                         partPairClearances.Add(frame, new Clearance(number, result, frame * stepSize));
 
-                    if (OnCompileProgress != null)
-                        OnCompileProgress((float)reader.BaseStream.Position / (float)reader.BaseStream.Length);
+                    OnCompileProgress?.Invoke((float)reader.BaseStream.Position / (float)reader.BaseStream.Length);
                 }
 
                 return clearanceFileMetaData;
             }
         }
 
-        private static Regex rowCleanupRegex = new Regex(@"^\d+", RegexOptions.Compiled);
-        private static string[] rowToValues(string row)
+        private static readonly Regex rowCleanupRegex = new Regex(@"^\d+", RegexOptions.Compiled);
+        private static string[] RowToValues(string row)
         {
             return rowCleanupRegex.Replace(row, "").Trim(new char[] { '"' }).Split(new string[] { "\",\"" }, StringSplitOptions.None);
         }
 
-        private static Regex cadIdCleanupRegex = new Regex(@"^.*?\0", RegexOptions.Compiled);
-        private static Regex cadIdSplitRegex = new Regex(@"\.(?:part|asm);-?\d+;-?\d+:\0", RegexOptions.Compiled);
-        private static string[] cadIdToPartHierarchy(string cadId)
+        private static readonly Regex cadIdCleanupRegex = new Regex(@"^.*?\0", RegexOptions.Compiled);
+        private static readonly Regex cadIdSplitRegex = new Regex(@"\.(?:part|asm);-?\d+;-?\d+:\0", RegexOptions.Compiled);
+        private static string[] CadIdToPartHierarchy(string cadId)
         {
             var partHierarchy = cadIdSplitRegex.Split(cadIdCleanupRegex.Replace(cadId, ""));
 

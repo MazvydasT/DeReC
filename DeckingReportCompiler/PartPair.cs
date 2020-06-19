@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace DeckingReportCompiler
 {
@@ -18,7 +16,7 @@ namespace DeckingReportCompiler
         {
             get
             {
-                return getAncestors(Part1Hierarchy);
+                return GetAncestors(Part1Hierarchy);
             }
         }
 
@@ -26,7 +24,7 @@ namespace DeckingReportCompiler
         {
             get
             {
-                return getAncestors(Part2Hierarchy);
+                return GetAncestors(Part2Hierarchy);
             }
         }
 
@@ -37,7 +35,7 @@ namespace DeckingReportCompiler
         {
             get
             {
-                return getProcess(Part1Hierarchy);
+                return GetProcess(Part1Hierarchy);
             }
         }
 
@@ -45,7 +43,7 @@ namespace DeckingReportCompiler
         {
             get
             {
-                return getProcess(Part2Hierarchy);
+                return GetProcess(Part2Hierarchy);
             }
         }
 
@@ -87,7 +85,7 @@ namespace DeckingReportCompiler
         {
             get
             {
-                return getDSNumber(Part1Hierarchy);
+                return GetDSNumber(Part1Hierarchy);
             }
         }
 
@@ -95,7 +93,7 @@ namespace DeckingReportCompiler
         {
             get
             {
-                return getDSNumber(Part2Hierarchy);
+                return GetDSNumber(Part2Hierarchy);
             }
         }
 
@@ -138,12 +136,12 @@ namespace DeckingReportCompiler
             }
         }*/
 
-        private static Regex mfgAreaRegex = new Regex(@".*?(F[a-zA-Z]{2})[\s-_]{0,2}(\d{5}).*", RegexOptions.Compiled|RegexOptions.IgnoreCase);
-        private static Regex dsRegex = new Regex(@".*?ds.*?\d{6}.*", RegexOptions.Compiled|RegexOptions.IgnoreCase);
-        private static Regex cpscRegex = new Regex(@".?(\d{6}).*", RegexOptions.Compiled);
+        private static readonly Regex mfgAreaRegex = new Regex(@".*?(F[a-zA-Z]{2})[\s-_]{0,2}(\d{5}).*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex dsRegex = new Regex(@".*?ds.*?\d{6}.*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex cpscRegex = new Regex(@".?(\d{6}).*", RegexOptions.Compiled);
 
         public Dictionary<int, Clearance> Clearances { get; private set; }
-        
+
         public Clearance WorstCaseClearance
         {
             get
@@ -200,7 +198,7 @@ namespace DeckingReportCompiler
             Number = number;
 
             Clearances = new Dictionary<int, Clearance>();
-            
+
             Part1Hierarchy = part1Hierarchy;
             Part2Hierarchy = part2Hierarchy;
 
@@ -208,7 +206,7 @@ namespace DeckingReportCompiler
             Part2Transforms = part2Transforms;
         }
 
-        private string getProcess(string[] partHierarchy)
+        private string GetProcess(string[] partHierarchy)
         {
             for (var i = partHierarchy.Length - 1; i > -1; --i)
             {
@@ -221,7 +219,7 @@ namespace DeckingReportCompiler
             return null;
         }
 
-        private string getDSNumber(string[] partHierarchy)
+        private string GetDSNumber(string[] partHierarchy)
         {
             for (var i = partHierarchy.Length - 1; i > -1; --i)
             {
@@ -234,7 +232,7 @@ namespace DeckingReportCompiler
             return null;
         }
 
-        private string getAncestors(string[] partHierarchy)
+        private string GetAncestors(string[] partHierarchy)
         {
             var stringBuilder = new StringBuilder(partHierarchy.Length - 1);
 

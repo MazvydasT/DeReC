@@ -5,12 +5,12 @@
         Title="DeReC" Height="173.713" Width="456.801" Icon="del.ico">
     <Grid>
         <Grid>
-            <TextBox x:Name="clearanceFilePath" Height="23" Margin="10,41,90,0" VerticalAlignment="Top" TextChanged="clearanceFilePath_TextChanged"/>
+            <TextBox x:Name="clearanceFilePath" Height="23" Margin="10,41,90,0" VerticalAlignment="Top" TextChanged="ClearanceFilePath_TextChanged"/>
             <Label Content="Clearance file:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="26" Width="83"/>
-            <Button x:Name="browseClearanceFile" Content="Browse" HorizontalAlignment="Right" Margin="0,42,10,0" VerticalAlignment="Top" Width="75" Height="22" Click="browseClearanceFile_Click"/>
+            <Button x:Name="browseClearanceFile" Content="Browse" HorizontalAlignment="Right" Margin="0,42,10,0" VerticalAlignment="Top" Width="75" Height="22" Click="BrowseClearanceFile_Click"/>
             <xctk:DoubleUpDown x:Name="stepSize" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="74,69,0,0" Height="26" Width="74" DefaultValue="5" DisplayDefaultValueOnEmptyText="True" Minimum="0.01" FormatString="#.## mm" />
             <Label Content="Step size:" HorizontalAlignment="Left" Margin="10,69,0,0" VerticalAlignment="Top" Height="26" Width="59"/>
-            <Button x:Name="compileButton" Content="Complile" Margin="0,0,10,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="compileButton_Click"/>
+            <Button x:Name="compileButton" Content="Complile" Margin="0,0,10,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="CompileButton_Click"/>
         </Grid>
         <Grid x:Name="progressOverlay" Visibility="Hidden">
             <Grid.Background>
@@ -27,7 +27,7 @@
                 <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlLightLightColorKey}}"/>
             </Grid.Background>
             <Image Margin="10" Source="del.ico"/>
-            <Button x:Name="doneButton" Content="Done" Margin="10,0,0,0" VerticalAlignment="Center" Click="doneButton_Click" HorizontalAlignment="Left" Width="75" Height="22" Grid.Column="1"/>
+            <Button x:Name="doneButton" Content="Done" Margin="10,0,0,0" VerticalAlignment="Center" Click="DoneButton_Click" HorizontalAlignment="Left" Width="75" Height="22" Grid.Column="1"/>
         </Grid>
     </Grid>
 </Window>
